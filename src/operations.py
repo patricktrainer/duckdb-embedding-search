@@ -63,3 +63,12 @@ def write_pickle_cache_to_duckdb(con: DuckDBPyConnection, pickle_path: str) -> N
 def save_pickle_cache(cache: PickleCache, cache_path: str) -> None:
     with open(cache_path, "wb") as file:
         pickle.dump(cache, file)
+
+
+def get_embedding_from_table(con: DuckDBPyConnection, text: str, model: str) -> List[float]:
+    result = con.execute(
+        "SELECT embedding FROM embeddings WHERE text=? AND model=?", [text, model]
+    ).fetchone()
+    if result:
+        return result[0]
+    raise ValueError(f"Embedding for {text} with model {model} not found in table")

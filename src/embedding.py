@@ -27,26 +27,13 @@ def duckdb_embeddings(
 ) -> List[List[float]]:
     embeddings = []
     for text in texts:
-        keys = [(text, model) for text in texts]
         # check to see if embedding is in duckdb table
-        if operations.list_keys_in_table(con, keys):
-            print("Found embedding in table")
-            # if so, retrieve it
-            result = con.execute(
-                "SELECT embedding FROM embeddings WHERE text=? AND model=?",
-                [text, model],
-            ).fetchone()
-            if result is not None:
-                embedding = result[0]
-                embeddings.append(embedding)
-            else:
-                print("Embedding not found in table")
-                print("Creating new embedding")
-                # if not, create it
-                embedding = openai_client.create_embedding(text, model)
-                # and write it to the table
-                operations.write_embedding_to_table(con, text, model, embedding)
-                embeddings.append(embedding)
+        result = operations.is_key_in_table(con, (text, model))
+        if result:
+            print("Embedding found in table")
+            # if so, get it
+            embedding = operations.get_embedding_from_table(con, text, model)
+            embeddings.append(embedding)
         else:
             print("Embedding not found in table")
             print("Creating new embedding")
@@ -54,7 +41,7 @@ def duckdb_embeddings(
             embedding = openai_client.create_embedding(text, model)
             # and write it to the table
             operations.write_embedding_to_table(con, text, model, embedding)
-            embeddings.append(embedding)
+            embeddings.append(embedding)        
     return embeddings
 
 
