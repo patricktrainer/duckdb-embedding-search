@@ -9,6 +9,17 @@ from .connection import DuckDBPyConnection
 def pickle_embeddings(
     texts: List[str], model: str, pickle_path: str
 ) -> List[List[float]]:
+    """
+    Retrieves or creates embeddings for a list of texts using python pickle as the storage engine.
+
+    Args:
+        texts (List[str]): The list of texts for which embeddings need to be retrieved or created.
+        model (str): The name of the model to be used for creating embeddings.
+        pickle_path (str): The path to save the pickle cache.
+
+    Returns:
+        List[List[float]]: A list of embeddings, where each embedding is represented as a list of floats.
+    """
     embeddings = []
     pickle_cache = operations.load_pickle_cache(pickle_path)
 
@@ -25,6 +36,17 @@ def pickle_embeddings(
 def duckdb_embeddings(
     texts: List[str], model: str, con: DuckDBPyConnection
 ) -> List[List[float]]:
+    """
+    Retrieves or creates embeddings for a list of texts using DuckDB as the storage engine.
+
+    Args:
+        texts (List[str]): The list of texts for which embeddings need to be retrieved or created.
+        model (str): The name of the model to be used for creating embeddings.
+        con (DuckDBPyConnection): The connection object for DuckDB.
+
+    Returns:
+        List[List[float]]: A list of embeddings, where each embedding is represented as a list of floats.
+    """
     embeddings = []
     for text in texts:
         # check to see if embedding is in duckdb table
@@ -46,13 +68,34 @@ def duckdb_embeddings(
 
 
 def cosine_similarity(con: DuckDBPyConnection, l1, l2) -> float:
+    """
+    Calculates the cosine similarity between two lists.
+
+    Parameters:
+    con (DuckDBPyConnection): The connection to the DuckDB database.
+    l1: The first list.
+    l2: The second list.
+
+    Returns:
+    float: The cosine similarity between the two lists.
+    """
     return con.execute(f"SELECT list_cosine_similarity({l1}, {l2})").fetchall()[0][0]
 
 
 def get_similarity(
     con: DuckDBPyConnection, text: str, model: str
 ) -> list[tuple[str, float]]:
-    # calculate the cosine similarity between the test_text and all other texts in the table
+    """
+    Calculates the cosine similarity between the input text and all other texts in the table.
+
+    Args:
+        con (DuckDBPyConnection): The connection to the DuckDB database.
+        text (str): The input text for which to calculate the similarity.
+        model (str): The name of the embedding model to use.
+
+    Returns:
+        list[tuple[str, float]]: A list of tuples containing the text and its similarity score, sorted in descending order of similarity.
+    """
     sql = """
         WITH q1 AS (
             SELECT 
