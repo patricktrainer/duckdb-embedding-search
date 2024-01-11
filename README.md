@@ -52,7 +52,8 @@ The most similar comments returned by the application (abbreviated for brevity):
     > similarity: 0.8047998201033179
 
 2. > text: Lots of good points here, but maintenance work for profitable systems seems like a valid use of time.<p>Now, some profitable systems are slowly bitrotting and tenured engineers can keep busy doing routine work while failing to address or escalate the bitrot. But I think people who are <i>good</i> at making sure boring and stable things stay boring and stable are usually underappreciated.
-    > similarity: 0.796911347299464
+   > 
+   > similarity: 0.796911347299464
 
 
 
