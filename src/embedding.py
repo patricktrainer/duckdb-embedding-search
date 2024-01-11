@@ -1,8 +1,8 @@
 from typing import List
-from .operations import write_embedding_to_table, list_keys_in_table
+import src.operations as operations
 import src.openai_client as openai_client
 from .connection import DuckDBPyConnection
-from src.utils import load_pickle_cache, save_pickle_cache
+
 
 
 # Function to get embeddings, using the cache
@@ -10,14 +10,14 @@ def pickle_embeddings(
     texts: List[str], model: str, pickle_path: str
 ) -> List[List[float]]:
     embeddings = []
-    pickle_cache = load_pickle_cache(pickle_path)
+    pickle_cache = operations.load_pickle_cache(pickle_path)
 
     for text in texts:
         key = (text, model)
         if key not in pickle_cache:
             pickle_cache[key] = openai_client.create_embedding(text, model=model)
         embeddings.append(pickle_cache[key])
-    save_pickle_cache(pickle_cache, pickle_path)
+    operations.save_pickle_cache(pickle_cache, pickle_path)
     return embeddings
 
 
@@ -29,7 +29,7 @@ def duckdb_embeddings(
     for text in texts:
         keys = [(text, model) for text in texts]
         # check to see if embedding is in duckdb table
-        if list_keys_in_table(con, keys):
+        if operations.list_keys_in_table(con, keys):
             print("Found embedding in table")
             # if so, retrieve it
             result = con.execute(
@@ -45,7 +45,7 @@ def duckdb_embeddings(
                 # if not, create it
                 embedding = openai_client.create_embedding(text, model)
                 # and write it to the table
-                write_embedding_to_table(con, text, model, embedding)
+                operations.write_embedding_to_table(con, text, model, embedding)
                 embeddings.append(embedding)
         else:
             print("Embedding not found in table")
@@ -53,7 +53,7 @@ def duckdb_embeddings(
             # if not, create it
             embedding = openai_client.create_embedding(text, model)
             # and write it to the table
-            write_embedding_to_table(con, text, model, embedding)
+            operations.write_embedding_to_table(con, text, model, embedding)
             embeddings.append(embedding)
     return embeddings
 
