@@ -1,6 +1,6 @@
 from typing import List
 from .operations import write_embedding_to_table, list_keys_in_table
-import openai_client
+import src.openai_client as openai_client
 from .connection import DuckDBPyConnection
 from src.utils import load_pickle_cache, save_pickle_cache
 
