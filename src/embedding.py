@@ -1,10 +1,28 @@
 from typing import List
-from .openai_client import get_openai_client
 from .operations import write_embedding_to_table, list_keys_in_table
+import openai_client
 from .connection import DuckDBPyConnection
+from src.utils import load_pickle_cache, save_pickle_cache
+
 
 # Function to get embeddings, using the cache
-def get_embeddings_with_cache(
+def pickle_embeddings(
+    texts: List[str], model: str, pickle_path: str
+) -> List[List[float]]:
+    embeddings = []
+    pickle_cache = load_pickle_cache(pickle_path)
+
+    for text in texts:
+        key = (text, model)
+        if key not in pickle_cache:
+            pickle_cache[key] = openai_client.create_embedding(text, model=model)
+        embeddings.append(pickle_cache[key])
+    save_pickle_cache(pickle_cache, pickle_path)
+    return embeddings
+
+
+# Function to get embeddings, using the cache
+def duckdb_embeddings(
     texts: List[str], model: str, con: DuckDBPyConnection
 ) -> List[List[float]]:
     embeddings = []
@@ -25,7 +43,7 @@ def get_embeddings_with_cache(
                 print("Embedding not found in table")
                 print("Creating new embedding")
                 # if not, create it
-                embedding = create_embedding(text, model)
+                embedding = openai_client.create_embedding(text, model)
                 # and write it to the table
                 write_embedding_to_table(con, text, model, embedding)
                 embeddings.append(embedding)
@@ -33,27 +51,11 @@ def get_embeddings_with_cache(
             print("Embedding not found in table")
             print("Creating new embedding")
             # if not, create it
-            embedding = create_embedding(text, model)
+            embedding = openai_client.create_embedding(text, model)
             # and write it to the table
             write_embedding_to_table(con, text, model, embedding)
             embeddings.append(embedding)
     return embeddings
-
-
-
-def create_embedding(text: str, model: str = "text-embedding-ada-002", **kwargs) -> List[float]:
-    # replace newlines, which can negatively affect performance.
-    try: 
-        client = get_openai_client()
-    except Exception as e:
-        print(e)
-        return []
-    
-    text = text.replace("\n", " ")
-    response = client.embeddings.create(input=[text], model=model, **kwargs)
-    return response.data[0].embedding
-
-
 
 
 def cosine_similarity(con: DuckDBPyConnection, l1, l2) -> float:
@@ -87,7 +89,6 @@ def get_similarity(
         LIMIT 10
         """
 
-    embedding = get_embeddings_with_cache([text], model, con)[0]
+    embedding = duckdb_embeddings([text], model, con)[0]
     result = con.execute(sql, [text, embedding]).fetchall()
     return result
-
