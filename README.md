@@ -1,5 +1,3 @@
-# Hacker News Comment Similarity Search
-
 ## Overview
 This repository contains a Python application that utilizes DuckDB as a backend to store and retrieve embedding vectors. The novel use of DuckDB allows for efficient similarity searches among large datasets. In this example, we've loaded comments from Hacker News and implemented functionality to find the 10 most similar comments to a given comment.
 
