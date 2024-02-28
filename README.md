@@ -16,12 +16,12 @@ This repository contains a Python application that utilizes DuckDB as a backend 
 ### Installation
 1. Clone the repository:
    ```sh
-   git clone https://github.com/patricktrainer/hackernews-comment-search.git
+   git clone https://github.com/patricktrainer/duckdb-embedding-search.git
    ```
 
 2. Navigate to the repository directory:
    ```sh
-   cd hackernews-comment-search
+   cd duckdb-embedding-search
    ```
 3. Install required packages:
    ```sh
@@ -52,7 +52,6 @@ The most similar comments returned by the application (abbreviated for brevity):
 2. > text: Lots of good points here, but maintenance work for profitable systems seems like a valid use of time.<p>Now, some profitable systems are slowly bitrotting and tenured engineers can keep busy doing routine work while failing to address or escalate the bitrot. But I think people who are <i>good</i> at making sure boring and stable things stay boring and stable are usually underappreciated.
    > 
    > similarity: 0.796911347299464
-
 
 
 ## Architecture
