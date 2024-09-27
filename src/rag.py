@@ -41,22 +41,22 @@ Context:
 {context}
 
 Query: {query}
+    Be as concise as possible.
 
 Response:"""
 
     response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
                 "content": """
-                You are a helpful assistant that generates responses based on given context.
-                Your response should provide examples of code if relevant.
-                Answer the user's question to the best of your ability as if you were a software developer.
+                You are a helpful software developer assistant that generates responses based on given context.
                 """
             },
             {"role": "user", "content": prompt},
         ],
+        max_completion_tokens=512,
     )
 
     return response.choices[0].message.content
